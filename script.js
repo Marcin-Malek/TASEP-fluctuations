@@ -7,9 +7,12 @@ let isRunning = true;
 const size = Number(process.argv[2]);
 const alpha = Number(process.argv[3]);
 const beta = Number(process.argv[4]);
+const maxTime = Number(process.argv[5]);
 const lattice = new Array(size).fill(0);
 const jumpOccurencesPlot = { x: [], y: [], type: "scatter" };
 const jumpFluctuationsPlot = { x: [], y: [], type: "scatter", line: { color: "red" }};
+
+const MAX_CURRENT_CONDITION = alpha > 0.5 && beta > 0.5;
 
 const writeLog = (msg) => {
 	return new Promise((resolve) => {
@@ -47,15 +50,19 @@ const mainLoop = async () => {
 	time++;
 	jumpOccurencesPlot.x.push(time);
 	jumpOccurencesPlot.y.push(Nt);
-	jumpFluctuationsPlot.x.push(time);
-	jumpFluctuationsPlot.y.push(Nt - 0.25 * time)
+	if (MAX_CURRENT_CONDITION) {
+		jumpFluctuationsPlot.x.push(time);
+		jumpFluctuationsPlot.y.push(Nt - 0.25 * time);
+	}
 }
 
 while (isRunning) {
 	await mainLoop();
-	if (time > 10000) {
+	if (time >= maxTime) {
 		plot([jumpOccurencesPlot]);
-		plot([jumpFluctuationsPlot]);
-		break;
+		if (MAX_CURRENT_CONDITION) {
+			plot([jumpFluctuationsPlot]);
+		}
+		isRunning = false;
 	}
 }
