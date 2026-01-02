@@ -20,6 +20,12 @@ const writeLog = (msg) => {
 	});
 };
 
+const init = () => {
+	lattice.forEach((_, index) => { 
+		lattice[index] = Math.random() > 0.5 ? 1 : 0; // u_1/2 or u_p-,p+ ?
+	});
+}
+
 const mainLoop = async () => {
 	for (let i=0; i<size; i++) {
 		const cell = Math.floor(Math.random() * (size+1)) - 1;
@@ -56,6 +62,7 @@ const mainLoop = async () => {
 	}
 }
 
+init();
 while (isRunning) {
 	await mainLoop();
 	if (time >= maxTime) {
