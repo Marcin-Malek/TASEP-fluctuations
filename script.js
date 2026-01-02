@@ -8,7 +8,8 @@ const size = Number(process.argv[2]);
 const alpha = Number(process.argv[3]);
 const beta = Number(process.argv[4]);
 const lattice = new Array(size).fill(0);
-const plotData = { x: [], y: [], type: "scatter" }
+const jumpOccurencesPlot = { x: [], y: [], type: "scatter" };
+const jumpFluctuationsPlot = { x: [], y: [], type: "scatter", line: { color: "red" }};
 
 const writeLog = (msg) => {
 	return new Promise((resolve) => {
@@ -39,19 +40,22 @@ const mainLoop = async () => {
 			}
 		}	
 		
-		console.clear();
-		await writeLog(lattice);
-		await setTimeout(3); //just to avoid output blinking
+		//console.clear();
+		//await writeLog(lattice);
+		//await setTimeout(3); //just to avoid output blinking
 	}
 	time++;
-	plotData.x.push(time);
-	plotData.y.push(Nt);
+	jumpOccurencesPlot.x.push(time);
+	jumpOccurencesPlot.y.push(Nt);
+	jumpFluctuationsPlot.x.push(time);
+	jumpFluctuationsPlot.y.push(Nt - 0.25 * time)
 }
 
 while (isRunning) {
 	await mainLoop();
 	if (time > 10000) {
-		plot([plotData]);
+		plot([jumpOccurencesPlot]);
+		plot([jumpFluctuationsPlot]);
 		break;
 	}
 }
