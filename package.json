@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "dependencies": {
+    "nodeplotlib": "^1.1.2"
+  }
+}

@@ -1,4 +1,5 @@
 import { setTimeout } from "timers/promises";
+import { plot } from "nodeplotlib";
 
 let Nt = 0;
 let time = 0;
@@ -7,6 +8,7 @@ const size = Number(process.argv[2]);
 const alpha = Number(process.argv[3]);
 const beta = Number(process.argv[4]);
 const lattice = new Array(size).fill(0);
+const plotData = { x: [], y: [], type: "scatter" }
 
 const writeLog = (msg) => {
 	return new Promise((resolve) => {
@@ -42,8 +44,14 @@ const mainLoop = async () => {
 		await setTimeout(3); //just to avoid output blinking
 	}
 	time++;
+	plotData.x.push(time);
+	plotData.y.push(Nt);
 }
 
 while (isRunning) {
 	await mainLoop();
+	if (time > 10000) {
+		plot([plotData]);
+		break;
+	}
 }
