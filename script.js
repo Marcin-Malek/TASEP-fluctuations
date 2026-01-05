@@ -12,14 +12,14 @@ const maxTime = Number(process.argv[5]);
 const runs = Number(process.argv[6]);
 const lattice = new Array(size).fill(0);
 const jumpOccurencesData = { x: [], y: [], type: "scatter" };
-const jumpFluctuationsData = { 
-	x: [], 
-	y: [], 
-	type: "scatter", 
-	line: { 
-		stroke: "1px", 
-		color: "#FF00000A"
-	}
+const jumpFluctuationsData = {
+  x: [],
+  y: [],
+  type: "scatter",
+  line: {
+    stroke: "1px",
+    color: "#FF00000A",
+  },
 };
 const jumpOccurencesPlot = [];
 const jumpFluctuationsPlot = [];
@@ -27,74 +27,101 @@ const jumpFluctuationsPlot = [];
 const MAX_CURRENT_CONDITION = alpha > 0.5 && beta > 0.5;
 
 const writeLog = (msg) => {
-	return new Promise((resolve) => {
-		process.stdout.write(msg.toString(), resolve);
-	});
+  return new Promise((resolve) => {
+    process.stdout.write(msg.toString(), resolve);
+  });
 };
 
 const init = () => {
-	lattice.forEach((_, index) => { 
-		lattice[index] = Math.random() > 0.5 ? 1 : 0; // u_1/2 or u_p-,p+ ?
-	});
-}
+  lattice.forEach((_, index) => {
+    lattice[index] = Math.random() > 0.5 ? 1 : 0; // u_1/2 or u_p-,p+ ?
+  });
+};
 
 const mainLoop = async () => {
-	while (time <= maxTime) {
-		for (let i=0; i<size; i++) {
-			const cell = Math.floor(Math.random() * (size+1)) - 1;
-			if (cell === -1 && lattice[0] === 0 && Math.random() < alpha) {
-				// enter
-				lattice[0] = 1;
-			} else if (
-				cell === size - 1 && 
-				lattice[cell] === 1 && 
-				Math.random() < beta
-			) { 
-				// exit
-				lattice[cell] = 0;			
-			} else if (lattice[cell] === 1 && lattice[cell + 1] === 0) { 
-				//jump
-				lattice[cell] = 0;
-				lattice[cell + 1] = 1;	
-				if (cell === Math.floor(size / 2) - 1) {
-					Nt++;	
-				}
-			}	
-		
-			//console.clear();
-			//await writeLog(lattice);
-			//await setTimeout(3); //just to avoid output blinking
-		}
-		time++;
-		jumpOccurencesData.x.push(time);
-		jumpOccurencesData.y.push(Nt);
-		if (MAX_CURRENT_CONDITION) {
-			jumpFluctuationsData.x.push(time);
-			jumpFluctuationsData.y.push(Nt - 0.25 * time);
-		}
-	}
-}
+  while (time <= maxTime) {
+    for (let i = 0; i < size; i++) {
+      const cell = Math.floor(Math.random() * (size + 1)) - 1;
+      if (cell === -1 && lattice[0] === 0 && Math.random() < alpha) {
+        // enter
+        lattice[0] = 1;
+      } else if (
+        cell === size - 1 &&
+        lattice[cell] === 1 &&
+        Math.random() < beta
+      ) {
+        // exit
+        lattice[cell] = 0;
+      } else if (lattice[cell] === 1 && lattice[cell + 1] === 0) {
+        //jump
+        lattice[cell] = 0;
+        lattice[cell + 1] = 1;
+        if (cell === Math.floor(size / 2) - 1) {
+          Nt++;
+        }
+      }
+
+      //console.clear();
+      //await writeLog(lattice);
+      //await setTimeout(3); //just to avoid output blinking
+    }
+    time++;
+    jumpOccurencesData.x.push(time);
+    jumpOccurencesData.y.push(Nt);
+    if (MAX_CURRENT_CONDITION) {
+      jumpFluctuationsData.x.push(time);
+      jumpFluctuationsData.y.push(Nt - 0.25 * time);
+    }
+  }
+};
 
 init();
-while (runCount <= runs) {
-	await mainLoop();
-	time = 0;
-	Nt = 0;
-	runCount++;
-	//isRunning = false;
-	jumpOccurencesPlot.push({...jumpOccurencesData});
-	jumpOccurencesData.x = [];
-	jumpOccurencesData.y = [];
-	jumpFluctuationsPlot.push({...jumpFluctuationsData});
-	jumpFluctuationsData.x = [];
-	jumpFluctuationsData.y = [];
+while (runCount < runs) {
+  await mainLoop();
+  time = 0;
+  Nt = 0;
+  runCount++;
+  //isRunning = false;
+  jumpOccurencesPlot.push({ ...jumpOccurencesData });
+  jumpOccurencesData.x = [];
+  jumpOccurencesData.y = [];
+  jumpFluctuationsPlot.push({ ...jumpFluctuationsData });
+  jumpFluctuationsData.x = [];
+  jumpFluctuationsData.y = [];
 }
+const plotInfoString = `a: ${alpha}, b: ${beta}, ${runs} runs on a ${size} sites lattice`;
 
-plot(jumpOccurencesPlot);
+plot(jumpOccurencesPlot, {
+  title: {
+    text: `Total jumps through central site<br>${plotInfoString}`,
+  },
+  xaxis: { title: "t" },
+  yaxis: { title: "N<sub>t</sub>" },
+});
 if (MAX_CURRENT_CONDITION) {
-	plot(jumpFluctuationsPlot);
-	plot(jumpFluctuationsPlot.map(runData => ({
-		...runData, 
-		y: runData.y.map((value, index) => (value / Math.pow(index, 1/3)))
-	}))); 
+  plot(jumpFluctuationsPlot, {
+    title: {
+      text: `Deviation from &#188; t line<br>${plotInfoString}`,
+    },
+    showlegend: false,
+    xaxis: { title: "t" },
+    yaxis: { title: "N<sub>t</sub> - &#188; t" },
+  });
+  plot(
+    jumpFluctuationsPlot.map((runData) => ({
+      ...runData,
+      y: runData.y.map((value, index) => value / Math.pow(index, 1 / 3)),
+    })),
+    {
+      title: {
+        text: `Deviation from &#188; t line corrected with t<sup style=\"font-size:80% !important\">&#8531;</sup><br>${plotInfoString}`,
+      },
+      showlegend: false,
+      xaxis: { title: "t" },
+      yaxis: {
+        title:
+          '(N<sub>t</sub> - &#188; t) * t<sup style="font-size:90% !important">&#8531;</sup>',
+      },
+    },
+  );
 }
