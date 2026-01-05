@@ -120,7 +120,7 @@ if (MAX_CURRENT_CONDITION) {
       xaxis: { title: "t" },
       yaxis: {
         title:
-          '(N<sub>t</sub> - &#188; t) * t<sup style="font-size:90% !important">&#8531;</sup>',
+          '(N<sub>t</sub> - &#188; t) / t<sup style="font-size:90% !important">&#8531;</sup>',
       },
     },
   );
