@@ -11,6 +11,7 @@ const beta = Number(process.argv[4]);
 const maxTime = Number(process.argv[5]);
 const runs = Number(process.argv[6]);
 const lattice = new Array(size).fill(0);
+const squaredFluctuations = new Float64Array(maxTime).fill(0);
 const jumpOccurencesData = { x: [], y: [], type: "scatter" };
 const jumpFluctuationsData = {
   x: [],
@@ -23,8 +24,11 @@ const jumpFluctuationsData = {
 };
 const jumpOccurencesPlot = [];
 const jumpFluctuationsPlot = [];
+const deviationPlot = [];
 
 const MAX_CURRENT_CONDITION = alpha > 0.5 && beta > 0.5;
+const LOW_DENSITY_CONDITION = alpha < 0.5 && beta > 0.5;
+const HIGH_DENSITY_CONDITION = alpha > 0.5 && beta < 0.5
 
 const writeLog = (msg) => {
   return new Promise((resolve) => {
@@ -34,7 +38,12 @@ const writeLog = (msg) => {
 
 const init = () => {
   lattice.forEach((_, index) => {
-    lattice[index] = Math.random() > 0.5 ? 1 : 0; // u_1/2 or u_p-,p+ ?
+    if (index < Math.floor(size / 2) - 1) {
+      lattice[index] = Math.random() < beta ? 1 : 0;
+    } else {
+      lattice[index] = Math.random() < alpha ? 1 : 0;
+    }
+    //lattice[index] = Math.random() > 0.5 ? 1 : 0; // u_1/2 or u_p-,p+ ?
   });
 };
 
@@ -60,28 +69,32 @@ const mainLoop = async () => {
           Nt++;
         }
       }
-
       //console.clear();
       //await writeLog(lattice);
       //await setTimeout(3); //just to avoid output blinking
     }
     time++;
+    let current = 0.25;
+    if (LOW_DENSITY_CONDITION) {
+      current = alpha * (1 - alpha); 
+    } else if (HIGH_DENSITY_CONDITION) {
+      current = beta * (1 - beta);
+    }
+    const fluctuation = Nt - (current * time);
     jumpOccurencesData.x.push(time);
     jumpOccurencesData.y.push(Nt);
-    if (MAX_CURRENT_CONDITION) {
-      jumpFluctuationsData.x.push(time);
-      jumpFluctuationsData.y.push(Nt - 0.25 * time);
-    }
+    jumpFluctuationsData.x.push(time);
+    jumpFluctuationsData.y.push(fluctuation);
+    squaredFluctuations[time] += Math.pow(fluctuation, 2);
   }
 };
 
-init();
 while (runCount < runs) {
+  init();
   await mainLoop();
   time = 0;
   Nt = 0;
   runCount++;
-  //isRunning = false;
   jumpOccurencesPlot.push({ ...jumpOccurencesData });
   jumpOccurencesData.x = [];
   jumpOccurencesData.y = [];
@@ -90,7 +103,7 @@ while (runCount < runs) {
   jumpFluctuationsData.y = [];
 }
 const plotInfoString = `a: ${alpha}, b: ${beta}, ${runs} runs on a ${size} sites lattice`;
-
+const scale = MAX_CURRENT_CONDITION ? 1 / 3 : 1 / 2;
 plot(jumpOccurencesPlot, {
   title: {
     text: `Total jumps through central site<br>${plotInfoString}`,
@@ -98,30 +111,39 @@ plot(jumpOccurencesPlot, {
   xaxis: { title: "t" },
   yaxis: { title: "N<sub>t</sub>" },
 });
-if (MAX_CURRENT_CONDITION) {
-  plot(jumpFluctuationsPlot, {
+plot(jumpFluctuationsPlot, {
+  title: {
+    text: `Current fluctuations<br>${plotInfoString}`,
+  },
+  showlegend: false,
+  xaxis: { title: "t" },
+  yaxis: { title: "N<sub>t</sub> - &#188; t" },
+});
+plot(
+  jumpFluctuationsPlot.map((runData) => ({
+    ...runData,
+    y: runData.y.map((value, index) => value / Math.pow(runData.x[index], scale)),
+  })),
+  {
     title: {
-      text: `Deviation from &#188; t line<br>${plotInfoString}`,
+      text: `Current fluctuations scaled with t<sup style="font-size:80% !important">${scale === 1/3 ? "&#8531;" : "&#189;"}</sup><br>${plotInfoString}`,
     },
     showlegend: false,
     xaxis: { title: "t" },
-    yaxis: { title: "N<sub>t</sub> - &#188; t" },
-  });
-  plot(
-    jumpFluctuationsPlot.map((runData) => ({
-      ...runData,
-      y: runData.y.map((value, index) => value / Math.pow(index, 1 / 3)),
-    })),
-    {
-      title: {
-        text: `Deviation from &#188; t line corrected with t<sup style=\"font-size:80% !important\">&#8531;</sup><br>${plotInfoString}`,
-      },
-      showlegend: false,
-      xaxis: { title: "t" },
-      yaxis: {
-        title:
-          '(N<sub>t</sub> - &#188; t) / t<sup style="font-size:90% !important">&#8531;</sup>',
-      },
+    yaxis: {
+      title:
+        `(N<sub>t</sub> - &#188; t) / t<sup style="font-size:90% !important">${scale === 1/3 ? "&#8531;" : "&#189;"}</sup>`,
     },
-  );
-}
+  },
+);
+plot([squaredFluctuations.reduce((acc, curr, index) => ({
+		...acc,
+		x: [...acc.x, index + 1],
+		y: [...acc.y, Math.sqrt(curr / runs) / Math.pow(index + 1, scale)],
+	}),{ x: [], y: [], type: "scatter" })], {
+		title: { text: `Scaled standard deviation<br>${plotInfoString}` },
+		xaxis: { title: "t" },
+		yaxis: { title: `&#x3C3; / t<sup style="font-size:90% !important">${scale === 1/3 ? "&#8531;" : "&#189;"}</sup>` }
+  }
+);
+
