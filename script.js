@@ -24,10 +24,9 @@ const jumpFluctuationsData = {
 };
 const jumpOccurencesPlot = [];
 const jumpFluctuationsPlot = [];
-const deviationPlot = [];
 
 const MAX_CURRENT_CONDITION = alpha > 0.5 && beta > 0.5;
-const LOW_DENSITY_CONDITION = alpha < 0.5 && beta > 0.5;
+const LOW_DENSITY_CONDITION = alpha <= 0.5 && beta >= alpha;
 const HIGH_DENSITY_CONDITION = alpha > 0.5 && beta < 0.5
 
 const writeLog = (msg) => {
@@ -39,11 +38,10 @@ const writeLog = (msg) => {
 const init = () => {
   lattice.forEach((_, index) => {
     if (index < Math.floor(size / 2) - 1) {
-      lattice[index] = Math.random() < beta ? 1 : 0;
+      lattice[index] = Math.random() < 1 - beta ? 1 : 0;
     } else {
       lattice[index] = Math.random() < alpha ? 1 : 0;
     }
-    //lattice[index] = Math.random() > 0.5 ? 1 : 0; // u_1/2 or u_p-,p+ ?
   });
 };
 
@@ -69,9 +67,9 @@ const mainLoop = async () => {
           Nt++;
         }
       }
-      //console.clear();
-      //await writeLog(lattice);
-      //await setTimeout(3); //just to avoid output blinking
+      // console.clear();
+      // await writeLog(lattice);
+      // await setTimeout(3); //just to avoid output blinking
     }
     time++;
     let current = 0.25;
@@ -89,8 +87,8 @@ const mainLoop = async () => {
   }
 };
 
+init();
 while (runCount < runs) {
-  init();
   await mainLoop();
   time = 0;
   Nt = 0;
@@ -136,6 +134,7 @@ plot(
     },
   },
 );
+// Deviation plot
 plot([squaredFluctuations.reduce((acc, curr, index) => ({
 		...acc,
 		x: [...acc.x, index + 1],
