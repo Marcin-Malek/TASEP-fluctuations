@@ -1,0 +1,1 @@
+export const MAX_STEPS_PER_FRAME = 2000;
