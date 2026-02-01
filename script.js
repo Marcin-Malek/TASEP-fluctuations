@@ -4,7 +4,10 @@ import { plot } from "nodeplotlib";
 let Nt = 0;
 let time = 0;
 let runCount = 0;
-let isRunning = true;
+let current;
+let density;
+let velocity;
+let relaxationTime;
 const size = Number(process.argv[2]);
 const alpha = Number(process.argv[3]);
 const beta = Number(process.argv[4]);
@@ -36,6 +39,17 @@ const writeLog = (msg) => {
 };
 
 const init = () => {
+  current = 0.25;
+  density = 0.5;
+  if (LOW_DENSITY_CONDITION) {
+    current = alpha * (1 - alpha);
+    density = alpha;
+  } else if (HIGH_DENSITY_CONDITION) {
+    current = beta * (1 - beta);
+    density = 1 - beta;
+  }
+  velocity = Math.abs(1 - 2 * density);
+  relaxationTime = size / velocity;
   lattice.forEach((_, index) => {
     if (index < Math.floor(size / 2) - 1) {
       lattice[index] = Math.random() < 1 - beta ? 1 : 0;
@@ -47,7 +61,7 @@ const init = () => {
 
 const mainLoop = async () => {
   while (time <= maxTime) {
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i <= size; i++) {
       const cell = Math.floor(Math.random() * (size + 1)) - 1;
       if (cell === -1 && lattice[0] === 0 && Math.random() < alpha) {
         // enter
@@ -145,4 +159,5 @@ plot([squaredFluctuations.reduce((acc, curr, index) => ({
 		yaxis: { title: `&#x3C3; / t<sup style="font-size:90% !important">${scale === 1/3 ? "&#8531;" : "&#189;"}</sup>` }
   }
 );
+console.log(relaxationTime);
 
