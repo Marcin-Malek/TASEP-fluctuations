@@ -12,7 +12,6 @@
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   z-index: 10;
   flex-wrap: wrap;
@@ -49,6 +48,7 @@
 }
 
 .button {
+  color: white;
   font-weight: bold;
   flex-basis: 120px;
 }
@@ -75,25 +75,19 @@
 
 .progress-bar {
   width: 100%;
-  grid-row: 1 / 1;
-  grid-column-start: span 2;
-
-  @media (max-width: 768px) {
-    grid-column-start: span 1;
-  }
 }
 
 .main-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: 15px 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   justify-items: center;
-  height: 90vh;
+  height: 100%;
   gap: 30px;
-  padding: 0 20px;
+  padding: 10px 20px 0;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    grid-template-rows: min-content repeat(4, minmax(40vh, 1fr));
+    grid-template-rows: repeat(4, minmax(40vh, 1fr));
   }
 }

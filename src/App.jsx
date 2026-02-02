@@ -301,13 +301,9 @@ const TasepSimulator = () => {
           </button>
         </div>
       </form>
+      <progress value={sim.progress} max="100" className="progress-bar"/>
 
       <div className="main-wrapper">
-        <div className="progress-bar">
-          {sim.isRunning && (
-            <progress value={sim.progress} max="100" style={{ width: '100%' }} />
-          )}
-        </div>
         {ntPlot}
         {fluctuationPlot}
         {scaledFluctuationPlot}
