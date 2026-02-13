@@ -66,7 +66,7 @@ export const useSimulation = (config) => {
     };
 
     setCurrentRunData(null);
-  }, [size, alpha, beta]);
+  }, [size, alpha, beta, maxTime]);
 
   const loop = useCallback(() => {
     if (!isRunning) return;
