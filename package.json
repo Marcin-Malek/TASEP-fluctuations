@@ -3,13 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://tasep.marcinmalek.dev",
+  "homepage": "https://tasep.marcinmalek.dev", 
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d dist --cname tasep.marcinmalek.dev",
     "predeploy": "npm run build"
   },
   "dependencies": {
