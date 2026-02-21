@@ -4,9 +4,40 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>tasep-fluctuations</title>
+    <title>TASEP Simulation</title>
+    <meta
+      name="description"
+      content="Interactive simulation of the Totally Asymmetric Simple Exclusion Process (TASEP). Explore non-equilibrium statistical physics, verify KPZ universality class scaling (t^1/3), and visualize particle dynamics using your browser."
+    />
+    <meta 
+      name="keywords" 
+      content="TASEP, KPZ Universality, Kardar-Parisi-Zhang, Monte Carlo Simulation, Statistical Physics, Tracy-Widom Distribution, Gaussian Distirbution, Random Matrix Theory, React, Scientific Computing, Stochastic Processes, Non-Equilibrium Systems, Particle Dynamics, Interactive Simulation, Data Visualization, Computational Physics, Scaling Laws, Fluctuations Analysis"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TASEP Simulation" />
+    <meta property="og:description" content="Interactive visualization of anomalous current fluctuations and Tracy-Widom distribution in TASEP model." />
+    <meta property="og:url" content="https://tasep.marcinmalek.dev" />
+    <meta property="og:image" content="%PUBLIC_URL%/share.png" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "TASEP Simulation",
+      "applicationCategory": "Scientific, Educational",
+      "operatingSystem": "Web Browser",
+      "description": "Interactive simulation of the Totally Asymmetric Simple Exclusion Process.",
+      "author": {
+        "@type": "Person",
+        "name": "Marcin Małek" 
+      }
+    }
+    </script>
   </head>
   <body>
+    <noscript>
+      <h1>TASEP Simulation</h1>
+      <p>Please enable JavaScript to run the simulation engine.</p>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

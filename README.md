@@ -38,6 +38,12 @@ The goal of this simulation is to verify the **$t^{1/3}$ anomalous scaling** in 
 
 ---
 
+![image](./images/screenshot2.png)
+
+![image](./images/screenshot1.png)
+
+---
+
 ## Repository Structure
 
 This project is split into two branches targeting different use cases:
